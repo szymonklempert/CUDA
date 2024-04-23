@@ -50,7 +50,7 @@ class ImageWindow(QWidget):
         self.slider_process.setMaximum(100)
         self.slider_process.valueChanged.connect(lambda value: self.update_label(self.label_process, value))
         self.slider_process.valueChanged.connect(lambda value: self.update_label(self.label_process, value))
-        self.slider_process.valueChanged.connect(self.run_filter)
+        self.slider_process.valueChanged.connect(self.slider_run_filter)
         self.controls_layout.addWidget(self.slider_process)
 
         self.label_process = QLabel("Slider Value: 0")
@@ -103,6 +103,27 @@ class ImageWindow(QWidget):
         self.run_filter()
 
     def run_filter(self):
+        if self.image_path and self.last_filter_clicked:
+            input_file = self.image_path
+            output_file = "output.jpg"  # Temporary output file name
+            strength = str(self.slider_process.value())
+            command = [f"{dir_path}/filter", self.last_filter_clicked, input_file, output_file, strength]
+            print(command)
+
+            try:
+                subprocess.run(command, check=True)
+                output_image = cv2.imread(output_file)
+                self.show_output_image(output_image)
+            except subprocess.CalledProcessError as e:
+                print(f"Error running filter: {e}")
+            finally:
+                self.output_path = output_file
+
+    def slider_run_filter(self):
+        if self.last_filter_clicked in ["median", "sharpening"]:
+            print("Median/sharpening filters do not support strength")
+            return
+
         if self.image_path and self.last_filter_clicked:
             input_file = self.image_path
             output_file = "output.jpg"  # Temporary output file name
