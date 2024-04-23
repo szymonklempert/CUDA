@@ -46,20 +46,20 @@ class ImageWindow(QWidget):
         self.label_process = QLabel("Slider Value: 0")
         self.controls_layout.addWidget(self.label_process)
 
-        self.button_process1 = QPushButton("Process 1")
+        self.button_process1 = QPushButton("Box filter")
         self.button_process1.clicked.connect(lambda: self.run_filter("box"))
         self.controls_layout.addWidget(self.button_process1)
 
-        self.button_process2 = QPushButton("Process 2")
+        self.button_process2 = QPushButton("Laplacian filter")
         self.button_process2.clicked.connect(lambda: self.run_filter("laplacian"))
         self.controls_layout.addWidget(self.button_process2)
 
 
-        self.button_process3 = QPushButton("Process 3")
+        self.button_process3 = QPushButton("Median filter")
         self.button_process3.clicked.connect(lambda: self.run_filter("median"))
         self.controls_layout.addWidget(self.button_process3)
 
-        self.button_process4 = QPushButton("Process 4")
+        self.button_process4 = QPushButton("Sharpening filter")
         self.button_process4.clicked.connect(lambda: self.run_filter("sharpening"))
         self.controls_layout.addWidget(self.button_process4)
 
