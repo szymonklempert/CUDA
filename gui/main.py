@@ -119,6 +119,11 @@ class ImageWindow(QWidget):
             finally:
                 self.output_path = output_file
 
+            if self.last_filter_clicked in ["median", "sharpening"]:
+                self.slider_process.setEnabled(False)
+            else:
+                self.slider_process.setEnabled(True)
+
     def slider_run_filter(self):
         if self.last_filter_clicked in ["median", "sharpening"]:
             print("Median/sharpening filters do not support strength")
