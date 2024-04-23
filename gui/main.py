@@ -4,7 +4,10 @@ import subprocess
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog, QSlider, QHBoxLayout, QSplitter
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore
+import os 
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+cwd = os.getcwd()
 class ImageWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -14,7 +17,7 @@ class ImageWindow(QWidget):
 
     def initUI(self):
         self.setWindowTitle("Image Viewer")
-        self.setGeometry(100, 100, 1000, 600)  # Increase the width of the window
+        self.setGeometry(100, 100, 1600, 900)  # Increase the width of the window
 
         self.layout = QHBoxLayout()
 
@@ -27,6 +30,9 @@ class ImageWindow(QWidget):
         self.button_load = QPushButton("Load Image")
         self.button_load.clicked.connect(self.load_image)
         self.image_layout.addWidget(self.button_load)
+
+        self.label_output = QLabel()
+        self.image_layout.addWidget(self.label_output)
 
         self.splitter.addWidget(QWidget())
         self.splitter.addWidget(QWidget())
@@ -63,6 +69,10 @@ class ImageWindow(QWidget):
         self.button_process4.clicked.connect(lambda: self.run_filter("sharpening"))
         self.controls_layout.addWidget(self.button_process4)
 
+        self.button_process5 = QPushButton("Sobel filter")
+        self.button_process5.clicked.connect(lambda: self.run_filter("sobel"))
+        self.controls_layout.addWidget(self.button_process5)
+
         self.layout.addLayout(self.controls_layout)
 
         self.setLayout(self.layout)
@@ -89,9 +99,11 @@ class ImageWindow(QWidget):
             input_file = self.image_path
             output_file = "output.jpg"  # Temporary output file name
             strength = str(self.slider_process.value())
-            command = f"xxxxxx {filter_name} {input_file} {output_file} {strength}"
+            command = [f"{dir_path}/filter", filter_name, input_file, output_file, strength]
+            print(command)
+
             try:
-                subprocess.run(command, shell=True, check=True)
+                subprocess.run(command, check=True)
                 output_image = cv2.imread(output_file)
                 self.show_output_image(output_image)
             except subprocess.CalledProcessError as e:
@@ -99,6 +111,15 @@ class ImageWindow(QWidget):
             finally:
                 self.output_path = output_file
 
+    #def show_output_image(self, image):
+     #   if image is not None:
+      #      image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+       #     height, width, channel = image.shape
+        #    bytesPerLine = 3 * width
+         #   qImg = QImage(image.data, width, height, bytesPerLine, QImage.Format_RGB888)
+          #  pixmap = QPixmap.fromImage(qImg)
+           # self.label_output.setPixmap(pixmap.scaled(self.label_output.size(), QtCore.Qt.KeepAspectRatio))
+           
     def show_output_image(self, image):
         if image is not None:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
