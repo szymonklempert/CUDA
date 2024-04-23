@@ -4,15 +4,17 @@ import subprocess
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog, QSlider, QHBoxLayout, QSplitter
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore
-import os 
+import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 cwd = os.getcwd()
+
 class ImageWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.image_path = None  # Variable to store the path of the loaded image
         self.output_path = None  # Variable to store the path of the output image
+        self.last_filter_clicked = None  # Variable to store the last filter button clicked
         self.initUI()
 
     def initUI(self):
@@ -47,30 +49,32 @@ class ImageWindow(QWidget):
         self.slider_process.setMinimum(0)
         self.slider_process.setMaximum(100)
         self.slider_process.valueChanged.connect(lambda value: self.update_label(self.label_process, value))
+        self.slider_process.valueChanged.connect(lambda value: self.update_label(self.label_process, value))
+        self.slider_process.valueChanged.connect(self.run_filter)
         self.controls_layout.addWidget(self.slider_process)
 
         self.label_process = QLabel("Slider Value: 0")
         self.controls_layout.addWidget(self.label_process)
 
         self.button_process1 = QPushButton("Box filter")
-        self.button_process1.clicked.connect(lambda: self.run_filter("box"))
+        self.button_process1.clicked.connect(lambda: self.set_last_filter_clicked("box"))
         self.controls_layout.addWidget(self.button_process1)
 
         self.button_process2 = QPushButton("Laplacian filter")
-        self.button_process2.clicked.connect(lambda: self.run_filter("laplacian"))
+        self.button_process2.clicked.connect(lambda: self.set_last_filter_clicked("laplacian"))
         self.controls_layout.addWidget(self.button_process2)
 
 
         self.button_process3 = QPushButton("Median filter")
-        self.button_process3.clicked.connect(lambda: self.run_filter("median"))
+        self.button_process3.clicked.connect(lambda: self.set_last_filter_clicked("median"))
         self.controls_layout.addWidget(self.button_process3)
 
         self.button_process4 = QPushButton("Sharpening filter")
-        self.button_process4.clicked.connect(lambda: self.run_filter("sharpening"))
+        self.button_process4.clicked.connect(lambda: self.set_last_filter_clicked("sharpening"))
         self.controls_layout.addWidget(self.button_process4)
 
         self.button_process5 = QPushButton("Sobel filter")
-        self.button_process5.clicked.connect(lambda: self.run_filter("sobel"))
+        self.button_process5.clicked.connect(lambda: self.set_last_filter_clicked("sobel"))
         self.controls_layout.addWidget(self.button_process5)
 
         self.layout.addLayout(self.controls_layout)
@@ -94,12 +98,16 @@ class ImageWindow(QWidget):
             else:
                 print("Error: Unable to load image.")
 
-    def run_filter(self, filter_name):
-        if self.image_path:
+    def set_last_filter_clicked(self, filter_name):
+        self.last_filter_clicked = filter_name
+        self.run_filter()
+
+    def run_filter(self):
+        if self.image_path and self.last_filter_clicked:
             input_file = self.image_path
             output_file = "output.jpg"  # Temporary output file name
             strength = str(self.slider_process.value())
-            command = [f"{dir_path}/filter", filter_name, input_file, output_file, strength]
+            command = [f"{dir_path}/filter", self.last_filter_clicked, input_file, output_file, strength]
             print(command)
 
             try:
@@ -111,15 +119,6 @@ class ImageWindow(QWidget):
             finally:
                 self.output_path = output_file
 
-    #def show_output_image(self, image):
-     #   if image is not None:
-      #      image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-       #     height, width, channel = image.shape
-        #    bytesPerLine = 3 * width
-         #   qImg = QImage(image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-          #  pixmap = QPixmap.fromImage(qImg)
-           # self.label_output.setPixmap(pixmap.scaled(self.label_output.size(), QtCore.Qt.KeepAspectRatio))
-           
     def show_output_image(self, image):
         if image is not None:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
